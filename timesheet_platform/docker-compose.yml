@@ -1,8 +1,11 @@
 services:
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/rossusher147/timesheet-application:main
+    # For local development, comment out the image line above and uncomment the
+    # build block and bind mount below.
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     env_file:
       - .env
     ports:
@@ -14,5 +17,5 @@ services:
       DJANGO_TIME_ZONE: "${DJANGO_TIME_ZONE:-Europe/London}"
       DEMO_HR_USERNAME: "${DEMO_HR_USERNAME}"
       DEMO_HR_PASSWORD: "${DEMO_HR_PASSWORD}"
-    volumes:
-      - .:/app
+    # volumes:
+    #   - .:/app
