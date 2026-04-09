@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{% if mode == 'edit' %}Edit Project{% else %}Create Project{% endif %} | Timesheet Platform{% endblock %}
+
+{% block content %}
+  <section class="page-intro split-title">
+    <div>
+      <h1>{% if mode == 'edit' %}Edit Project{% else %}Create Project{% endif %}</h1>
+      <p>Projects can be assigned to one or more users when they are created or updated.</p>
+    </div>
+    <a href="{% url 'activities:list' %}" class="button-link button-link-secondary">Back To Projects</a>
+  </section>
+
+  {% if mode == 'edit' and project %}
+    <section class="card">
+      <div class="meta-grid">
+        <div><strong>Code:</strong> {{ project.code }}</div>
+        <div><strong>Name:</strong> {{ project.name }}</div>
+        <div><strong>Assigned Users:</strong> {{ project.user_assignments.count }}</div>
+      </div>
+    </section>
+  {% endif %}
+
+  <form method="post" class="card">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">{% if mode == 'edit' %}Save Project{% else %}Create Project{% endif %}</button>
+  </form>
+{% endblock %}

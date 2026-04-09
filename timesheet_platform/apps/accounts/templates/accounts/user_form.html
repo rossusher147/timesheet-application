@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{% if mode == 'edit' %}Edit User{% else %}Create User{% endif %} | Timesheet Platform{% endblock %}
+
+{% block content %}
+  <section class="page-intro split-title">
+    <div>
+      <h1>{% if mode == 'edit' %}Edit User{% else %}Create User{% endif %}</h1>
+      <p>Maintain allowed HR profile fields and role assignments.</p>
+    </div>
+    <a href="{% url 'accounts:search' %}" class="button-link button-link-secondary">Back To Search</a>
+  </section>
+
+  {% if profile_user %}
+    <section class="card">
+      <h2>{{ profile_user.get_full_name|default:profile_user.username }}</h2>
+      <div class="meta-grid">
+        <div><strong>Username:</strong> {{ profile_user.username }}</div>
+        <div><strong>Roles:</strong> {{ profile_user.role_names|join:", " }}</div>
+        <div><strong>Business unit:</strong> {{ profile_user.business_unit|default:"-" }}</div>
+        <div><strong>Weekly contracted hours:</strong> {{ profile_user.weekly_contracted_hours }}</div>
+        <div><strong>Approver:</strong> {{ profile_user.approver|default:"-" }}</div>
+        <div><strong>Assigned activities:</strong> {{ profile_user.assigned_activity_codes|join:", " }}</div>
+      </div>
+    </section>
+  {% endif %}
+
+  <form method="post" class="card">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">{% if mode == 'edit' %}Save Changes{% else %}Create User{% endif %}</button>
+  </form>
+{% endblock %}

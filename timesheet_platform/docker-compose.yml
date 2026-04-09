@@ -1,0 +1,18 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_DEBUG: "${DJANGO_DEBUG:-true}"
+      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY}"
+      DJANGO_ALLOWED_HOSTS: "${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1}"
+      DJANGO_TIME_ZONE: "${DJANGO_TIME_ZONE:-Europe/London}"
+      DEMO_HR_USERNAME: "${DEMO_HR_USERNAME}"
+      DEMO_HR_PASSWORD: "${DEMO_HR_PASSWORD}"
+    volumes:
+      - .:/app

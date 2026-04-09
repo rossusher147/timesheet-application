@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}User Search | Timesheet Platform{% endblock %}
+
+{% block content %}
+  <section class="page-intro split-title">
+    <div>
+      <h1>User Search</h1>
+      <p>Find employees, approvers, and HR users, then open their profile for maintenance.</p>
+    </div>
+    <a href="{% url 'accounts:create' %}" class="button-link">Create User</a>
+  </section>
+
+  <section class="card">
+    <form method="get" class="inline-form">
+      {{ form.q.label_tag }}
+      {{ form.q }}
+      <button type="submit">Search</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Roles</th>
+            <th>Approver</th>
+            <th>Weekly Hours</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+            <tr>
+              <td>{{ user.get_full_name|default:user.username }}</td>
+              <td>{{ user.role_names|join:", " }}</td>
+              <td>{{ user.approver|default:"-" }}</td>
+              <td>{{ user.weekly_contracted_hours }}</td>
+              <td><a href="{% url 'accounts:detail' user.pk %}" class="button-link button-link-secondary">Open Profile</a></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5">No users found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

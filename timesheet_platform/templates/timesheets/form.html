@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Timesheet | Timesheet Platform{% endblock %}
+
+{% block content %}
+    <section class="page-intro split-title">
+        <div>
+            <h1>Edit Timesheet</h1>
+            <p>Week starting {{ timesheet.period_start }}. Add Monday to Friday activity rows and save before submitting.</p>
+        </div>
+        <a href="{% url 'timesheets:detail' timesheet.pk %}" class="button-link button-link-secondary">View Read Only</a>
+    </section>
+
+    <section class="card">
+        <div class="meta-grid">
+            <div><strong>Status:</strong> {{ timesheet.get_status_display }}</div>
+            <div><strong>Approver:</strong> {{ timesheet.approver.get_full_name|default:timesheet.approver.username }}</div>
+            <div><strong>Expected Weekly Hours:</strong> {{ timesheet.expected_weekly_hours }}</div>
+            <div><strong>Current Total:</strong> {{ timesheet.total_hours }}</div>
+        </div>
+        {% if timesheet.latest_rejection_note %}
+            <div class="notice notice-error">
+                <strong>Latest rejection note</strong>
+                <span>{{ timesheet.latest_rejection_note }}</span>
+            </div>
+        {% endif %}
+    </section>
+
+    <form method="post" class="card">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Activity</th>
+                        <th>Day</th>
+                        <th>Hours</th>
+                        <th>Notes</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form in formset %}
+                        <tr>
+                            <td>
+                                {{ form.id }}
+                                {{ form.activity_code }}
+                                {{ form.activity_code.errors }}
+                            </td>
+                            <td>
+                                {{ form.work_date }}
+                                {{ form.work_date.errors }}
+                            </td>
+                            <td>
+                                {{ form.duration }}
+                                {{ form.duration.errors }}
+                            </td>
+                            <td>
+                                {{ form.notes }}
+                                {{ form.notes.errors }}
+                            </td>
+                            <td>{{ form.DELETE }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if formset.non_form_errors %}
+            <div class="message message-error">{{ formset.non_form_errors }}</div>
+        {% endif %}
+        <div class="button-row">
+            <button type="submit" name="action" value="save">Save Draft</button>
+            <button type="submit" name="action" value="submit">Save And Submit</button>
+        </div>
+    </form>
+{% endblock %}

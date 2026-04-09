@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Timesheet Platform{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="brand-block">
+            <a href="{% url 'dashboard:home' %}" class="brand-link">Timesheet Platform</a>
+            <p class="brand-subtitle">Local MVP for employee, approver, and HR workflows</p>
+        </div>
+        {% if request.user.is_authenticated %}
+            <nav class="site-nav">
+                <a href="{% url 'dashboard:home' %}">Dashboard</a>
+                {% if not request.user.is_hr_role %}
+                    <a href="{% url 'timesheets:list' %}">My Timesheets</a>
+                {% endif %}
+                {% if request.user.is_approver_role and not request.user.is_hr_role %}
+                    <a href="{% url 'approvals:queue' %}">Approvals</a>
+                {% endif %}
+                {% if request.user.is_hr_role %}
+                    <a href="{% url 'accounts:search' %}">People</a>
+                    <a href="{% url 'activities:list' %}">Projects</a>
+                    <a href="{% url 'accounts:create' %}">Register User</a>
+                {% endif %}
+                <form method="post" action="{% url 'logout' %}" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-button">Log Out</button>
+                </form>
+            </nav>
+        {% endif %}
+    </header>
+
+    <main class="page-shell">
+        {% if messages %}
+            <section class="messages">
+                {% for message in messages %}
+                    <div class="message message-{{ message.tags|default:'info' }}">{{ message }}</div>
+                {% endfor %}
+            </section>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

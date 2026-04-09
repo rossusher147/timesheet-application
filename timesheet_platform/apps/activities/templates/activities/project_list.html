@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Projects | Timesheet Platform{% endblock %}
+
+{% block content %}
+  <section class="page-intro split-title">
+    <div>
+      <h1>Projects</h1>
+      <p>Create projects, review assigned users, and retire projects when they should no longer be booked.</p>
+    </div>
+    <a href="{% url 'activities:create' %}" class="button-link">Create Project</a>
+  </section>
+
+  <section class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Billing Type</th>
+            <th>Assigned Users</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for project in projects %}
+            <tr>
+              <td>{{ project.code }}</td>
+              <td>{{ project.name }}</td>
+              <td>{{ project.get_billing_type_default_display }}</td>
+              <td>{{ project.user_assignments.count }}</td>
+              <td>
+                <div class="button-row">
+                  <a href="{% url 'activities:edit' project.pk %}" class="button-link button-link-secondary">Edit</a>
+                  <form method="post" action="{% url 'activities:delete' project.pk %}" class="inline-form danger-form">
+                    {% csrf_token %}
+                    <button type="submit">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5">No active projects yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | Timesheet Platform{% endblock %}
+
+{% block content %}
+  <section class="card auth-card">
+    <h1>Timesheet Platform</h1>
+    <p>Sign in with your employee, approver, or HR account.</p>
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Sign In</button>
+    </form>
+  </section>
+{% endblock %}

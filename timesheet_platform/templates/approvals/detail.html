@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load timesheet_extras %}
+
+{% block title %}Review Timesheet | Timesheet Platform{% endblock %}
+
+{% block content %}
+    <section class="page-intro split-title">
+        <div>
+            <h1>Review Timesheet</h1>
+            <p>{{ timesheet.user.get_full_name|default:timesheet.user.username }} | Week starting {{ timesheet.period_start }}</p>
+        </div>
+        <a href="{% url 'approvals:queue' %}" class="button-link button-link-secondary">Back To Queue</a>
+    </section>
+
+    <section class="card">
+        <div class="meta-grid">
+            <div><strong>Status:</strong> {{ timesheet.get_status_display }}</div>
+            <div><strong>Total Hours:</strong> {{ timesheet.total_hours }}</div>
+            <div><strong>Expected Hours:</strong> {{ timesheet.expected_weekly_hours }}</div>
+            <div><strong>Approval Due:</strong> {{ timesheet.approval_due_at }}</div>
+        </div>
+        {% if timesheet.latest_rejection_note %}
+            <div class="notice notice-warning">
+                <strong>Last rejection note</strong>
+                <span>{{ timesheet.latest_rejection_note }}</span>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="card desktop-only">
+        <h2>Entries</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Activity</th>
+                        <th>Hours</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for day in week_days %}
+                        {% with day_entries=entries_by_day|get_item:day %}
+                            {% if day_entries %}
+                                {% for entry in day_entries %}
+                                    <tr>
+                                        <td>{{ entry.work_date }}</td>
+                                        <td>{{ entry.activity_code.code }} - {{ entry.activity_code.name }}</td>
+                                        <td>{{ entry.duration }}</td>
+                                        <td>{{ entry.notes|default:"-" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td>{{ day }}</td>
+                                    <td colspan="3">No entries</td>
+                                </tr>
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="mobile-day-list">
+        {% for day in week_days %}
+            <details class="day-card">
+                <summary>{{ day|date:"l" }} ({{ entries_by_day|get_item_total:day }}h)</summary>
+                <div class="day-card-body">
+                    {% for entry in entries_by_day|get_item:day %}
+                        <div class="entry-card">
+                            <strong>{{ entry.activity_code.code }} - {{ entry.activity_code.name }}</strong>
+                            <span>{{ entry.duration }} hours</span>
+                            <small>{{ entry.notes|default:"No notes" }}</small>
+                        </div>
+                    {% empty %}
+                        <p>No entries for this day.</p>
+                    {% endfor %}
+                </div>
+            </details>
+        {% endfor %}
+    </section>
+
+    {% if timesheet.status == 'submitted' %}
+        <section class="card-grid">
+            <article class="card">
+                <h2>Approve</h2>
+                <form method="post" action="{% url 'approvals:approve' timesheet.pk %}">
+                    {% csrf_token %}
+                    <button type="submit">Approve Timesheet</button>
+                </form>
+            </article>
+
+            <article class="card">
+                <h2>Reject</h2>
+                <form method="post" action="{% url 'approvals:reject' timesheet.pk %}">
+                    {% csrf_token %}
+                    {{ rejection_form.rejection_note.label_tag }}
+                    {{ rejection_form.rejection_note }}
+                    <button type="submit">Reject Timesheet</button>
+                </form>
+            </article>
+        </section>
+    {% endif %}
+
+    <section class="card">
+        <h2>Workflow History</h2>
+        <ul class="compact-list">
+            {% for event in timesheet.workflow_events.all %}
+                <li>{{ event.created_at }} <strong>{{ event.get_event_type_display }}</strong> by {{ event.actor.get_full_name|default:event.actor.username }}{% if event.comment %}: {{ event.comment }}{% endif %}</li>
+            {% empty %}
+                <li>No workflow history yet.</li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endblock %}

@@ -1,0 +1,156 @@
+Table User {
+  userID int [pk, not null]
+  username varchar [not null, unique]
+  passwordHash varchar [not null, note: 'Django password hash, not plain text']
+  email varchar
+  firstName varchar [not null]
+  surname varchar [not null]
+  businessUnit varchar
+  weeklyContractedHours decimal(5,2) [not null, default: 37.50]
+  approverUserID int
+  isActive boolean [not null, default: true]
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+
+  Note: 'Represents all authenticated users including employees, approvers, and HR. Employees are known as "Partners".'
+}
+
+Table Role {
+  roleID int [pk, not null]
+  roleCode varchar [not null, unique, note: 'EMPLOYEE / APPROVER / HR']
+  name varchar [not null]
+
+  Note: 'A user may hold more than one role, e.g. Employee + Approver.'
+}
+
+Table UserRole {
+  userID int [not null]
+  roleID int [not null]
+  assignedAt datetime [not null]
+
+  Indexes {
+    (userID, roleID) [pk]
+  }
+}
+
+Table ActivityCode {
+  activityCodeID int [pk, not null]
+  code varchar [not null, unique]
+  name varchar [not null]
+  category varchar [not null, note: 'project / internal / bank_holiday / annual_leave / sick_leave / other']
+  billingTypeDefault varchar [note: 'internal / billable / non-billable']
+  fixedHours decimal(5,2) [note: 'Used for system-controlled leave/activity codes']
+  defaultDuration decimal(5,2)
+  isSystemControlledHours boolean [not null, default: false]
+  isActive boolean [not null, default: true]
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+
+  Note: 'Replaces the original Project concept and covers both work and leave codes.'
+}
+
+Table UserActivityAssignment {
+  userID int [not null]
+  activityCodeID int [not null]
+  assignedByUserID int
+  assignedAt datetime [not null]
+
+  Note: 'Defines which activity codes a user is allowed to book against, including leave codes for MVP.'
+
+  Indexes {
+    (userID, activityCodeID) [pk]
+  }
+}
+
+Table Timesheet {
+  timesheetID int [pk, not null]
+  userID int [not null]
+  approverUserID int [not null]
+  periodStart date [not null]
+  periodEnd date [not null]
+  status varchar [not null, note: 'In Progress / Submitted / Approved / Rejected']
+  submissionDueAt datetime [not null]
+  approvalDueAt datetime [not null, note: 'Fixed to the original Friday cutoff for MVP']
+  submittedAt datetime
+  approvedAt datetime
+  rejectedAt datetime
+  isSubmissionOverdue boolean [not null, default: false]
+  isApprovalOverdue boolean [not null, default: false]
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+
+  Note: 'One Monday-Friday timesheet per user per period. Stores the actual approver for historical accuracy.'
+
+  Indexes {
+    (userID, periodStart, periodEnd) [unique]
+  }
+}
+
+Table TimeEntry {
+  timeEntryID int [pk, not null]
+  timesheetID int [not null]
+  activityCodeID int [not null]
+  workDate date [not null]
+  duration decimal(5,2) [not null, note: 'Hours, e.g. 7.50']
+  billingType varchar [not null, note: 'internal / billable / non-billable']
+  entryCategory varchar [not null, note: 'project_work / leave / non_project']
+  systemControlledHours boolean [not null, default: false]
+  notes text
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+
+  Note: 'For MVP, one row per timesheet, activity code, and work date.'
+
+  Indexes {
+    (timesheetID, activityCodeID, workDate) [unique]
+  }
+}
+
+Table WorkflowEvent {
+  workflowEventID int [pk, not null]
+  timesheetID int [not null]
+  actorUserID int [not null]
+  eventType varchar [not null, note: 'draft_created / submitted / approved / rejected / resubmitted']
+  comment text
+  metadataJson json
+  createdAt datetime [not null]
+
+  Note: 'Tracks workflow history and distinguishes resubmissions without adding a separate timesheet status.'
+}
+
+Table Notification {
+  notificationID int [pk, not null]
+  recipientUserID int [not null]
+  timesheetID int
+  workflowEventID int
+  notificationType varchar [not null, note: 'submission / approval / rejection / resubmission / reminder_summary / other']
+  title varchar [not null]
+  body text [not null]
+  severity varchar [not null, note: 'info / success / warning / error']
+  createdAt datetime [not null]
+  readAt datetime
+
+  Note: 'Persists event notifications only. Pinned reminders are derived from live state and are not stored as rows.'
+}
+
+Ref: User.approverUserID > User.userID
+
+Ref: UserRole.userID > User.userID
+Ref: UserRole.roleID > Role.roleID
+
+Ref: UserActivityAssignment.userID > User.userID
+Ref: UserActivityAssignment.activityCodeID > ActivityCode.activityCodeID
+Ref: UserActivityAssignment.assignedByUserID > User.userID
+
+Ref: Timesheet.userID > User.userID
+Ref: Timesheet.approverUserID > User.userID
+
+Ref: TimeEntry.timesheetID > Timesheet.timesheetID
+Ref: TimeEntry.activityCodeID > ActivityCode.activityCodeID
+
+Ref: WorkflowEvent.timesheetID > Timesheet.timesheetID
+Ref: WorkflowEvent.actorUserID > User.userID
+
+Ref: Notification.recipientUserID > User.userID
+Ref: Notification.timesheetID > Timesheet.timesheetID
+Ref: Notification.workflowEventID > WorkflowEvent.workflowEventID

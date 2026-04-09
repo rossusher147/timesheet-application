@@ -1,0 +1,287 @@
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f1ea;
+    color: #1d2227;
+}
+
+a {
+    color: #004f5a;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+button,
+.button-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    border: 1px solid #004f5a;
+    background: #004f5a;
+    color: #fff;
+    border-radius: 999px;
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.button-link-secondary {
+    background: transparent;
+    color: #004f5a;
+}
+
+.site-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #fef9f2, #e2ece9);
+    border-bottom: 1px solid #d0d8d5;
+}
+
+.brand-link {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.brand-subtitle {
+    margin: 0.2rem 0 0;
+    color: #53636c;
+}
+
+.site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+.logout-form {
+    margin: 0;
+}
+
+.nav-button {
+    background: transparent;
+    color: #004f5a;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+    font: inherit;
+}
+
+.nav-button:hover {
+    text-decoration: underline;
+}
+
+.page-shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 2rem 1rem 3rem;
+}
+
+.page-intro {
+    margin-bottom: 1.5rem;
+}
+
+.split-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.card {
+    background: #fff;
+    border: 1px solid #dce3e1;
+    border-radius: 22px;
+    padding: 1.25rem;
+    box-shadow: 0 12px 32px rgba(22, 36, 45, 0.06);
+    margin-bottom: 1rem;
+}
+
+.auth-card {
+    max-width: 520px;
+    margin: 3rem auto;
+}
+
+.auth-form p {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e6edeb;
+    text-align: left;
+    vertical-align: top;
+}
+
+.notice-list,
+.compact-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.notice,
+.entry-card {
+    display: grid;
+    gap: 0.3rem;
+    padding: 0.85rem 0.95rem;
+    border-radius: 16px;
+    background: #f7faf9;
+    border: 1px solid #d6e4df;
+}
+
+.notice-warning {
+    border-color: #c68d21;
+    background: #fff8ea;
+}
+
+.notice-error {
+    border-color: #b94d4d;
+    background: #fff0f0;
+}
+
+.notice-success {
+    border-color: #2f8d5f;
+    background: #edf9f2;
+}
+
+.notice-info {
+    border-color: #3f6d7a;
+    background: #eef6f8;
+}
+
+.messages {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.message {
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    background: #eef6f8;
+    border: 1px solid #c1d8df;
+}
+
+.message-error {
+    background: #fff0f0;
+    border-color: #e1b4b4;
+}
+
+.message-success {
+    background: #edf9f2;
+    border-color: #b6e3c7;
+}
+
+.metric {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0.4rem 0 0.8rem;
+}
+
+.button-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.inline-form {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.form-help {
+    color: #53636c;
+    margin-top: 0.5rem;
+}
+
+.mobile-day-list {
+    display: none;
+}
+
+.day-card {
+    background: #fff;
+    border: 1px solid #dce3e1;
+    border-radius: 20px;
+    padding: 0.35rem 0.8rem;
+    margin-bottom: 0.8rem;
+}
+
+.day-card summary {
+    cursor: pointer;
+    padding: 0.8rem 0;
+    font-weight: 600;
+}
+
+.day-card-body {
+    padding-bottom: 0.75rem;
+    display: grid;
+    gap: 0.75rem;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #cad6d2;
+    border-radius: 12px;
+    padding: 0.65rem 0.75rem;
+    font: inherit;
+}
+
+@media (max-width: 768px) {
+    .site-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .desktop-only {
+        display: none;
+    }
+
+    .mobile-day-list {
+        display: block;
+    }
+
+    table th,
+    table td {
+        min-width: 130px;
+    }
+}

@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Timesheet Platform{% endblock %}
+
+{% block content %}
+    <section class="page-intro">
+        <h1>Dashboard</h1>
+        <p>Keep personal timesheet work, approval activity, and HR actions clearly separated.</p>
+    </section>
+
+    {% if request.user.is_hr_role %}
+        <section class="card">
+            <h2>HR Workspace</h2>
+            <p>Use the people area to register users, search profiles, and update weekly contracted hours, assigned approver, and activity assignments.</p>
+            <div class="button-row">
+                <a href="{% url 'accounts:search' %}" class="button-link">Search Users</a>
+                <a href="{% url 'activities:list' %}" class="button-link button-link-secondary">Manage Projects</a>
+                <a href="{% url 'accounts:create' %}" class="button-link button-link-secondary">Register User</a>
+            </div>
+        </section>
+    {% endif %}
+
+    {% if employee_dashboard %}
+        <section class="card-grid">
+            <article class="card">
+                <h2>Personal Reminders</h2>
+                {% if employee_dashboard.reminders %}
+                    <ul class="notice-list">
+                        {% for reminder in employee_dashboard.reminders %}
+                            <li class="notice notice-{{ reminder.severity }}">
+                                <strong>{{ reminder.title }}</strong>
+                                <span>{{ reminder.body }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No pinned reminders right now.</p>
+                {% endif %}
+            </article>
+
+            <article class="card">
+                <h2>Current Week</h2>
+                {% if employee_dashboard.current_timesheet %}
+                    <p><strong>Week:</strong> {{ employee_dashboard.current_timesheet.period_start }} to {{ employee_dashboard.current_timesheet.period_end }}</p>
+                    <p><strong>Status:</strong> {{ employee_dashboard.current_timesheet.get_status_display }}</p>
+                    <p><strong>Total:</strong> {{ employee_dashboard.current_timesheet.total_hours }} / {{ employee_dashboard.current_timesheet.expected_weekly_hours }} hours</p>
+                    <div class="button-row">
+                        <a href="{% url 'timesheets:edit' employee_dashboard.current_timesheet.pk %}" class="button-link">Edit</a>
+                        <a href="{% url 'timesheets:detail' employee_dashboard.current_timesheet.pk %}" class="button-link button-link-secondary">View</a>
+                    </div>
+                {% else %}
+                    <p>No personal timesheet is available yet.</p>
+                {% endif %}
+            </article>
+        </section>
+
+        <section class="card-grid">
+            <article class="card">
+                <h2>My Timesheets</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Week</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                                <th>Approver</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for timesheet in employee_dashboard.timesheets %}
+                                <tr>
+                                    <td><a href="{% url 'timesheets:detail' timesheet.pk %}">{{ timesheet.period_start }}</a></td>
+                                    <td>{{ timesheet.get_status_display }}</td>
+                                    <td>{{ timesheet.total_hours }}</td>
+                                    <td>{{ timesheet.approver.get_full_name|default:timesheet.approver.username }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4">No timesheets yet.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="card">
+                <h2>Notification History</h2>
+                {% if employee_dashboard.notifications %}
+                    <ul class="notice-list">
+                        {% for notification in employee_dashboard.notifications %}
+                            <li class="notice notice-{{ notification.severity }}">
+                                <strong>{{ notification.title }}</strong>
+                                <span>{{ notification.body }}</span>
+                                <small>{{ notification.created_at }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No notifications yet.</p>
+                {% endif %}
+            </article>
+        </section>
+    {% endif %}
+
+    {% if approver_dashboard %}
+        <section class="page-intro split-title">
+            <h2>Approval Workflow</h2>
+            <a href="{% url 'approvals:queue' %}" class="button-link">Open Queue</a>
+        </section>
+
+        <section class="card-grid">
+            <article class="card">
+                <h3>Pinned Approval Reminders</h3>
+                {% if approver_dashboard.reminders %}
+                    <ul class="notice-list">
+                        {% for reminder in approver_dashboard.reminders %}
+                            <li class="notice notice-{{ reminder.severity }}">
+                                <strong>{{ reminder.title }}</strong>
+                                <span>{{ reminder.body }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No approval reminders right now.</p>
+                {% endif %}
+            </article>
+
+            <article class="card">
+                <h3>Approval Notifications</h3>
+                {% if approver_dashboard.notifications %}
+                    <ul class="notice-list">
+                        {% for notification in approver_dashboard.notifications %}
+                            <li class="notice notice-{{ notification.severity }}">
+                                <strong>{{ notification.title }}</strong>
+                                <span>{{ notification.body }}</span>
+                                <small>{{ notification.created_at }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No approval notifications yet.</p>
+                {% endif %}
+            </article>
+        </section>
+
+        <section class="card-grid">
+            <article class="card">
+                <h3>Pending Review</h3>
+                <p class="metric">{{ approver_dashboard.pending_reviews|length }}</p>
+                <ul class="compact-list">
+                    {% for timesheet in approver_dashboard.pending_reviews %}
+                        <li><a href="{% url 'approvals:detail' timesheet.pk %}">{{ timesheet.user.get_full_name|default:timesheet.user.username }}</a> <span>{{ timesheet.period_start }}</span></li>
+                    {% empty %}
+                        <li>No reviews waiting.</li>
+                    {% endfor %}
+                </ul>
+            </article>
+
+            <article class="card">
+                <h3>Awaiting Resubmission</h3>
+                <p class="metric">{{ approver_dashboard.waiting_for_resubmission|length }}</p>
+                <ul class="compact-list">
+                    {% for timesheet in approver_dashboard.waiting_for_resubmission %}
+                        <li>{{ timesheet.user.get_full_name|default:timesheet.user.username }} <span>{{ timesheet.period_start }}</span></li>
+                    {% empty %}
+                        <li>No rejected items waiting.</li>
+                    {% endfor %}
+                </ul>
+            </article>
+
+            <article class="card">
+                <h3>Missed Employee Submission Deadlines</h3>
+                <p class="metric">{{ approver_dashboard.missed_submissions|length }}</p>
+                <ul class="compact-list">
+                    {% for timesheet in approver_dashboard.missed_submissions %}
+                        <li>{{ timesheet.user.get_full_name|default:timesheet.user.username }} <span>{{ timesheet.period_start }}</span></li>
+                    {% empty %}
+                        <li>No missed submission deadlines.</li>
+                    {% endfor %}
+                </ul>
+            </article>
+        </section>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}My Timesheets | Timesheet Platform{% endblock %}
+
+{% block content %}
+    <section class="page-intro split-title">
+        <div>
+            <h1>My Timesheets</h1>
+            <p>Create weekly Monday to Friday timesheets and batch submit completed drafts.</p>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Create Timesheet</h2>
+        <form method="post" action="{% url 'timesheets:create' %}" class="inline-form">
+            {% csrf_token %}
+            {{ create_form.period_start.label_tag }}
+            {{ create_form.period_start }}
+            <button type="submit">Create / Open</button>
+        </form>
+        <p class="form-help">{{ create_form.period_start.help_text }}</p>
+    </section>
+
+    <section class="card">
+        <div class="split-title">
+            <h2>Existing Timesheets</h2>
+        </div>
+        <form method="post" action="{% url 'timesheets:batch_submit' %}">
+            {% csrf_token %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Submit</th>
+                            <th>Week</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th>Approver</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for timesheet in timesheets %}
+                            <tr>
+                                <td>
+                                    {% if timesheet.status == 'in_progress' or timesheet.status == 'rejected' %}
+                                        <input type="checkbox" name="selected_timesheets" value="{{ timesheet.pk }}">
+                                    {% endif %}
+                                </td>
+                                <td>{{ timesheet.period_start }} to {{ timesheet.period_end }}</td>
+                                <td>{{ timesheet.get_status_display }}</td>
+                                <td>{{ timesheet.total_hours }}</td>
+                                <td>{{ timesheet.approver.get_full_name|default:timesheet.approver.username }}</td>
+                                <td class="button-row">
+                                    <a href="{% url 'timesheets:detail' timesheet.pk %}" class="button-link button-link-secondary">View</a>
+                                    {% if timesheet.status != 'approved' %}
+                                        <a href="{% url 'timesheets:edit' timesheet.pk %}" class="button-link">Edit</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6">No timesheets created yet.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit">Batch Submit Selected</button>
+        </form>
+    </section>
+{% endblock %}

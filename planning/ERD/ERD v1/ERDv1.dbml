@@ -1,0 +1,66 @@
+Table User {
+  userID int [pk, not null]
+  firstName varchar [not null]
+  surname varchar [not null]
+  businessUnit varchar [not null]
+
+  Note: 'Employees are known as "Partners"'
+}
+
+Table Project {
+  projectID int [pk, not null]
+  name varchar [not null]
+
+  Note: 'Not a typical project'
+}
+
+Table UserProject {
+  userID int [not null]
+  projectID int [not null]
+
+  Note: 'Which projects a user is allowed to book time against'
+
+  Indexes {
+    (userID, projectID) [pk]
+  }
+}
+
+Table Timesheet {
+  timesheetID int [pk, not null]
+  userID int [not null]
+  periodStart date
+  periodEnd date
+  status varchar
+
+  Note: 'Owned by one user'
+
+  Indexes {
+    (userID, timesheetID) [unique]
+  }
+}
+
+Table TimeEntry {
+  timeEntryID int [pk, not null]
+  timesheetID int [not null]
+  userID int [not null]
+  projectID int [not null]
+  workDate date [not null]
+  duration decimal(5,2) [not null, note: 'Hours, e.g. 7.50']
+  billingType varchar [not null, note: 'internal / billable / non-billable']
+  notes varchar
+
+  Note: 'A time entry must use a project assigned to that user'
+
+  Indexes {
+    (userID, timesheetID)
+    (userID, projectID)
+  }
+}
+
+Ref: UserProject.userID > User.userID
+Ref: UserProject.projectID > Project.projectID
+
+Ref: Timesheet.userID > User.userID
+
+Ref: TimeEntry.(userID, projectID) > UserProject.(userID, projectID)
+Ref: TimeEntry.(userID, timesheetID) > Timesheet.(userID, timesheetID)

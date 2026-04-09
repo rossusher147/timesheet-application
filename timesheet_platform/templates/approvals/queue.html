@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Approval Queue | Timesheet Platform{% endblock %}
+
+{% block content %}
+    <section class="page-intro">
+        <h1>Approval Queue</h1>
+        <p>Review submitted timesheets and keep track of rejected items waiting to come back.</p>
+    </section>
+
+    <section class="card-grid">
+        <article class="card">
+            <h2>Pending Review</h2>
+            <ul class="compact-list">
+                {% for timesheet in queue %}
+                    <li>
+                        <a href="{% url 'approvals:detail' timesheet.pk %}">{{ timesheet.user.get_full_name|default:timesheet.user.username }}</a>
+                        <span>{{ timesheet.period_start }}</span>
+                    </li>
+                {% empty %}
+                    <li>No submitted timesheets waiting.</li>
+                {% endfor %}
+            </ul>
+        </article>
+
+        <article class="card">
+            <h2>Awaiting Resubmission</h2>
+            <ul class="compact-list">
+                {% for timesheet in waiting_for_resubmission %}
+                    <li>{{ timesheet.user.get_full_name|default:timesheet.user.username }} <span>{{ timesheet.period_start }}</span></li>
+                {% empty %}
+                    <li>No rejected items waiting.</li>
+                {% endfor %}
+            </ul>
+        </article>
+    </section>
+{% endblock %}

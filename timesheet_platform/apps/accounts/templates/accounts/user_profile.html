@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en-gb">
+<head>
+  <meta charset="utf-8">
+  <title>User Profile</title>
+</head>
+<body>
+  <h1>User Profile</h1>
+  <p><a href="{% url 'accounts:search' %}">Back to search</a></p>
+  <section>
+    <h2>{{ profile_user.get_full_name|default:profile_user.username }}</h2>
+    <p><strong>Username:</strong> {{ profile_user.username }}</p>
+    <p><strong>Roles:</strong> {{ profile_user.role_names|join:", " }}</p>
+    <p><strong>Business unit:</strong> {{ profile_user.business_unit|default:"-" }}</p>
+    <p><strong>Weekly contracted hours:</strong> {{ profile_user.weekly_contracted_hours }}</p>
+    <p><strong>Approver:</strong> {{ profile_user.approver|default:"-" }}</p>
+    <p><strong>Assigned activities:</strong> {{ profile_user.assigned_activity_codes|join:", " }}</p>
+  </section>
+  <section>
+    <h2>Edit Profile</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Save changes</button>
+    </form>
+  </section>
+</body>
+</html>

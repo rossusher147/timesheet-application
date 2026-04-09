@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load timesheet_extras %}
+
+{% block title %}Timesheet Detail | Timesheet Platform{% endblock %}
+
+{% block content %}
+    <section class="page-intro split-title">
+        <div>
+            <h1>Timesheet Detail</h1>
+            <p>Week starting {{ timesheet.period_start }} for {{ timesheet.user.get_full_name|default:timesheet.user.username }}</p>
+        </div>
+        {% if timesheet.status != 'approved' %}
+            <a href="{% url 'timesheets:edit' timesheet.pk %}" class="button-link">Edit</a>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <div class="meta-grid">
+            <div><strong>Status:</strong> {{ timesheet.get_status_display }}</div>
+            <div><strong>Approver:</strong> {{ timesheet.approver.get_full_name|default:timesheet.approver.username }}</div>
+            <div><strong>Total Hours:</strong> {{ timesheet.total_hours }}</div>
+            <div><strong>Expected Hours:</strong> {{ timesheet.expected_weekly_hours }}</div>
+        </div>
+        {% if timesheet.latest_rejection_note %}
+            <div class="notice notice-error">
+                <strong>Rejection note</strong>
+                <span>{{ timesheet.latest_rejection_note }}</span>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="card desktop-only">
+        <h2>Weekly Entries</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Activity</th>
+                        <th>Hours</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for day in week_days %}
+                        {% with day_entries=entries_by_day|get_item:day %}
+                            {% if day_entries %}
+                                {% for entry in day_entries %}
+                                    <tr>
+                                        <td>{{ entry.work_date }}</td>
+                                        <td>{{ entry.activity_code.code }} - {{ entry.activity_code.name }}</td>
+                                        <td>{{ entry.duration }}</td>
+                                        <td>{{ entry.notes|default:"-" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td>{{ day }}</td>
+                                    <td colspan="3">No entries</td>
+                                </tr>
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="mobile-day-list">
+        {% for day in week_days %}
+            <details class="day-card">
+                <summary>{{ day|date:"l" }} ({{ entries_by_day|get_item_total:day }}h)</summary>
+                <div class="day-card-body">
+                    {% for entry in entries_by_day|get_item:day %}
+                        <div class="entry-card">
+                            <strong>{{ entry.activity_code.code }} - {{ entry.activity_code.name }}</strong>
+                            <span>{{ entry.duration }} hours</span>
+                            <small>{{ entry.notes|default:"No notes" }}</small>
+                        </div>
+                    {% empty %}
+                        <p>No entries for this day.</p>
+                    {% endfor %}
+                </div>
+            </details>
+        {% endfor %}
+    </section>
+
+    <section class="card">
+        <h2>Workflow History</h2>
+        <ul class="compact-list">
+            {% for event in timesheet.workflow_events.all %}
+                <li>{{ event.created_at }} <strong>{{ event.get_event_type_display }}</strong> by {{ event.actor.get_full_name|default:event.actor.username }}{% if event.comment %}: {{ event.comment }}{% endif %}</li>
+            {% empty %}
+                <li>No workflow history yet.</li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endblock %}
