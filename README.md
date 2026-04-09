@@ -15,6 +15,23 @@ This is a repo to continue working on a timesheet application that I built as pa
 
 The current MVP is planned as a local Docker deployment.
 
+You can use the published Docker image instead of building locally:
+
+```bash
+docker pull ghcr.io/rossusher147/timesheet-application:main
+```
+
+Or pull a specific released version:
+
+```bash
+docker pull ghcr.io/rossusher147/timesheet-application:VERSION
+```
+
+Note: whether you pull the published image or build locally, you still need a
+local `timesheet_platform/.env` file. Copy `timesheet_platform/.env.example` to
+`timesheet_platform/.env` and set the required values before starting the
+container.
+
 Suggested local setup flow:
 
 1. Copy `timesheet_platform/.env.example` to a local `timesheet_platform/.env`.
