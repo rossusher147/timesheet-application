@@ -157,10 +157,16 @@ def submit_timesheet(timesheet, actor):
 
 @transaction.atomic
 def batch_submit_timesheets(timesheets, actor):
-    submitted = []
-    for timesheet in timesheets.select_related("user", "approver"):
+    selected_timesheets = list(timesheets.select_related("user", "approver"))
+    for timesheet in selected_timesheets:
         if timesheet.status not in [Timesheet.Status.IN_PROGRESS, Timesheet.Status.REJECTED]:
             raise ValidationError("Only in-progress or rejected timesheets can be batch submitted.")
+        if actor.id != timesheet.user_id:
+            raise ValidationError("You can only submit your own timesheets.")
+        validate_timesheet_for_submission(timesheet)
+
+    submitted = []
+    for timesheet in selected_timesheets:
         submit_timesheet(timesheet, actor)
         submitted.append(timesheet)
     return submitted

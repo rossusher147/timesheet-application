@@ -20,6 +20,9 @@ env:
 jobs:
   django-tests:
     runs-on: ubuntu-latest
+    env:
+      DJANGO_DEBUG: "true"
+      DJANGO_SECRET_KEY: "ci-test-secret"
 
     steps:
       - name: Checkout repository
@@ -37,11 +40,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r timesheet_platform/requirements.txt
 
+      - name: Run Django checks
+        working-directory: timesheet_platform
+        run: |
+          python manage.py check
+          python manage.py makemigrations --check --dry-run
+
       - name: Run Django test suite
         working-directory: timesheet_platform
-        env:
-          DJANGO_DEBUG: "true"
-          DJANGO_SECRET_KEY: "ci-test-secret"
         run: python manage.py test --verbosity 2
 
   docker-image:

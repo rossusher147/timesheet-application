@@ -2,6 +2,7 @@ demo-credentials.txt
 timesheet_platform/demo-credentials.txt
 timesheet_platform/.env
 timesheet_platform/.deps/
+timesheet_platform/.testdeps/
 timesheet_platform/.venv/
 timesheet_platform/db.sqlite3
 __pycache__/
